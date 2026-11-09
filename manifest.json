@@ -1,0 +1,22 @@
+{
+  "manifest_version": 1,
+  "name": "角色自动养成",
+  "version": "1.0.0",
+  "bgi_version": "0.66.0",
+  "description": "输入角色名+当前/目标等级与天赋等级，自动汇总突破/天赋/武器材料，读背包存量算缺口，按体力优先刷秘境、讨伐首领，再按 CD 采集特产与打怪，并用地脉花补经验书/摩拉。",
+  "authors": [
+    {
+      "name": "aipaixiatian",
+      "links": "https://github.com/aipaixiatian"
+    }
+  ],
+  "library": [
+    "."
+  ],
+  "settings_ui": "settings.json",
+  "main": "main.js",
+  "saved_files": [
+    "record/"
+  ],
+  "allow_js_notification": true
+}
