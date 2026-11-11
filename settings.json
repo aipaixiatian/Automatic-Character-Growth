@@ -56,6 +56,24 @@
     ]
   },
   {
+    "name": "useNahidaRoutes",
+    "type": "select",
+    "label": "是否使用「纳西妲采集」路线\n是 = 有草神路线优先（队伍需带纳西妲）\n否 = 只用普通路线（靠智能拾取按 F）",
+    "options": [
+      "是",
+      "否"
+    ]
+  },
+  {
+    "name": "unknownPolicy",
+    "type": "select",
+    "label": "材质数量识别失败（-2）时怎么办？\n跳过 = 不刷（安全，默认）\n刷一轮 = 第 1 轮按「缺全额」试刷一次",
+    "options": [
+      "跳过",
+      "刷一轮"
+    ]
+  },
+  {
     "name": "expBookTarget",
     "type": "input-text",
     "label": "经验书目标本数（0=不管；填了自动识别「大英雄的经验」按缺口刷）\n参考：角色 1→90 约需 419 本"
@@ -69,6 +87,15 @@
     "name": "moraPerWealthRun",
     "type": "input-text",
     "label": "一次藏金之花约给多少摩拉（默认 57000，只用于预估）"
+  },
+  {
+    "name": "fallbackPickup",
+    "type": "select",
+    "label": "智能拾取（屏幕出现 F 提示图标时才按 F，不会乱按）\n默认「是」；若误触 NPC 可改「否」",
+    "options": [
+      "是",
+      "否"
+    ]
   },
   {
     "name": "autoWealthFromMora",

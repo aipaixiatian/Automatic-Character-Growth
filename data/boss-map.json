@@ -1,38 +1,45 @@
 {
  "note": "首领素材 → BGI AutoBoss 首领名。confidence=high 可直接用；low 需人工确认；none 需手动补。",
- "bossCount": 50,
+ "bossCount": 51,
  "map": {
   "奇械发条备件·歌裴莉娅": {
    "boss": "歌裴莉娅的葬送",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "奇械发条备件·科培琉司": {
    "boss": "科培琉司的劫罚",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "玄岩之塔": {
    "boss": "无相之岩",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "净水之心": {
    "boss": "纯水精灵",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "凝云鳞甲": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "隐山猊兽",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "晶凝之华": {
    "boss": "急冻树",
    "confidence": "high"
   },
   "循环式军用月矩核心": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "超重型陆巡舰·机动战垒",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "排异之露": {
-   "boss": "深罪浸礼者",
-   "confidence": "high"
+   "boss": "无相之水",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "龙嗣伪鳍": {
    "boss": null,
@@ -40,37 +47,43 @@
   },
   "帝皇的决断": {
    "boss": "铁甲熔火帝皇",
-   "confidence": "low",
-   "note": "按名称相似度推测，默认不启用"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "深邃纠缠的凝视": {
    "boss": "深邃摹结株",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "常燃火种": {
    "boss": "爆炎树",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "常暗圆环": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "深罪浸礼者",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "原海麟角": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "千年珍珠骏麟",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "金色旋律的断章": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "魔像督军",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "秘刻金纹的源核": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "秘源机兵·构型械",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "极寒之核": {
-   "boss": "无相之冰",
-   "confidence": "high",
-   "note": "BGI 首领清单里没有该名，可能需要更新 BGI"
+   "boss": "急冻树",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "飓风之种": {
    "boss": "无相之风",
@@ -79,43 +92,53 @@
   },
   "未熟之玉": {
    "boss": "古岩龙蜥",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "承光的鳞羽": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "蕴光月幻蝶",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "导光四面体": {
-   "boss": "无相之草",
-   "confidence": "high"
+   "boss": "半永恒统辖矩阵",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "雷光棱镜": {
    "boss": "无相之雷",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "蕈王钩喙": {
    "boss": "翠翎恐蕈",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "魔偶机心": {
    "boss": "魔偶剑鬼",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "受祝所缚之印": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "金焰绒翼龙暴君",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "过熟的火榴果": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "贪食匿叶龙山王",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "永续机芯": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "兆载永劫龙兽",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "恒常机关之心": {
    "boss": "恒常机关阵列",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "堕天的落羽": {
    "boss": "守望者·堕天",
@@ -123,27 +146,33 @@
   },
   "精密型月矩力冲鸭模具": {
    "boss": "重拳出击鸭",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "棱光的断尾": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "蕴光月守宫",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "苍砾蕊羽": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "风蚀沙虫",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "灭诤草蔓": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "无相之草",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "漫光的辉角": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "霜夜巡天灵主",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "魇翼枯骸": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "深黯魇语之主",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "兽境王器": {
    "boss": null,
@@ -151,11 +180,13 @@
   },
   "符纹之齿": {
    "boss": "遗迹巨蛇",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "秘源积气喉": {
    "boss": "秘源机兵·统御械",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "游空之物的断尾": {
    "boss": null,
@@ -163,32 +194,37 @@
   },
   "阴燃之珠": {
    "boss": "无相之火",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "龙像的无智核": {
    "boss": "熔岩辉龙像",
-   "confidence": "low",
-   "note": "按名称相似度推测，默认不启用"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "雷霆数珠": {
    "boss": "雷音权现",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "谜土的护符": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "灵觉隐修的迷者",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "星与火的基石": {
    "boss": null,
    "confidence": "none"
   },
   "藏雷野实": {
-   "boss": null,
-   "confidence": "none"
+   "boss": "掣电树",
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "「图比昂装置」": {
    "boss": "实验性场力发生装置",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   },
   "焰中不灭花枝": {
    "boss": "不灭衍生造物",
@@ -201,7 +237,8 @@
   },
   "未能达成超越之水": {
    "boss": "水形幻人",
-   "confidence": "high"
+   "confidence": "wiki",
+   "source": "bwiki 首领页"
   }
  }
 }

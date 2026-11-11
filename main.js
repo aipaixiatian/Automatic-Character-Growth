@@ -3,7 +3,7 @@
 import { parsePlanText, buildTargets, computeShortfall, buildTasks, summarize, parseMappingText, suggestName, estimateMora } from './lib/planner.js';
 import { countItems } from './lib/inventory.js';
 import { loadData, loadState, saveState, readPlanFile, loadRouteShards, saveAllRouteShards } from './lib/store.js';
-import { info, warn, err, notify, flush, bootMetrics, checkVersion, isCancelled, isCancellationError, enableAutoSkip } from './lib/env.js';
+import { info, warn, err, notify, flush, bootMetrics, checkVersion, isCancelled, isCancellationError, enableAutoSkip, enableAutoPick } from './lib/env.js';
 import { runDomain, runBoss, runRouteTask, calibrateEnemies, getRouteIndex, runLeyLine } from './lib/executor.js';
 
 const TAG = '[角色养成]';
@@ -56,6 +56,9 @@ function readConfig() {
     maxConsecutiveFailures: Math.max(1, intSetting('maxConsecutiveFailures', 3)),
     maxRunMinutes: Math.max(5, intSetting('maxRunMinutes', 90)),
     calibrateDirs: Math.max(0, Math.min(20, intSetting('calibrateDirs', 0))),
+    fallbackPickup: yesSetting('fallbackPickup', true),
+    useNahidaRoutes: yesSetting('useNahidaRoutes', true),
+    unknownPolicy: String(setting('unknownPolicy', '跳过')), 
     maxRounds: Math.min(10, Math.max(1, intSetting('maxRounds', 3))),
     cdSpecialtyHours: intSetting('cdSpecialtyHours', 48),
     cdMonsterHours: intSetting('cdMonsterHours', 12),
@@ -64,17 +67,31 @@ function readConfig() {
 }
 
 async function snapshot(names, materials) {
-  // 只统计「会去刷」的材料：元素晶体/周本/皇冠/摩拉本来就不刷，统计它们既慢又容易触发重试
-  const COUNTABLE = new Set(['talentbook', 'weaponmat', 'boss', 'specialty', 'monster']);
-  const countNames = names.filter((n) => COUNTABLE.has(materials?.[n]?.kind));
-  const skipNames = names.filter((n) => !COUNTABLE.has(materials?.[n]?.kind));
-  const { counts, unknown, source } = await countItems(countNames);
-  const merged = { ...counts };
+  // 只统计「会去刷」的材料；并按游戏的两个页签分组，各查一次（比让 BGI 自己多页扫描快很多）
+  const PAGE_A = new Set(['talentbook', 'weaponmat', 'boss', 'weekly', 'crown', 'gem']);  // 养成道具
+  const PAGE_B = new Set(['specialty', 'monster']);                                       // 材料
+  const countNames = names.filter((n) => PAGE_A.has(materials?.[n]?.kind) || PAGE_B.has(materials?.[n]?.kind));
+  const skipNames = names.filter((n) => !countNames.includes(n));
+  const groupA = countNames.filter((n) => PAGE_A.has(materials[n]?.kind));
+  const groupB = countNames.filter((n) => PAGE_B.has(materials[n]?.kind));
+
+  const merged = {};
+  const unknown = [];
+  const run = async (page, list) => {
+    if (!list.length) return;
+    const r = await countItems(list, { gridScreenName: page });
+    Object.assign(merged, r.counts);
+    unknown.push(...r.unknown);
+    info(`${TAG} 背包统计（${page}）：${list.length - r.unknown.length}/${list.length} 项`);
+  };
+  await run('CharacterDevelopmentItems', groupA);
+  await run('Materials', groupB);
+
   for (const n of skipNames) merged[n] = 0;   // 不刷的类别按 0 处理，后续会以「跳过」形式出现
-  info(`${TAG} 背包统计完成（${source}）：有效 ${Object.values(counts).filter((v) => v !== null).length}/${countNames.length}`
+  info(`${TAG} 背包统计完成：有效 ${countNames.length - unknown.length}/${countNames.length}`
     + (skipNames.length ? `，另 ${skipNames.length} 项不刷的材料未统计` : '')
     + (unknown.length ? `，未识别 ${unknown.length} 项` : ''));
-  if (unknown.length) warn(`${TAG} 未识别（本轮视为「未知」，不参与刷取，避免无限刷）：${unknown.join('、')}`);
+  if (unknown.length) warn(`${TAG} 未识别（本轮视为「未知」，不参与刷取，不重试）：${unknown.join('、')}`);
   return { counts: merged, unknown };
 }
 
@@ -133,6 +150,15 @@ async function snapshot(names, materials) {
       + `秘境队伍${cfg.partyName ? `「${cfg.partyName}」` : '沿用 BGI'}、首领队伍${cfg.bossPartyName ? `「${cfg.bossPartyName}」` : '沿用 BGI'}、`
       + `采集队伍${cfg.gatherTeam ? `「${cfg.gatherTeam}」` : '不切'}、打怪队伍${cfg.fightTeam ? `「${cfg.fightTeam}」` : '不切'}、`
       + `策略${cfg.strategyName ? `「${cfg.strategyName}」` : '沿用 BGI'}`);
+
+    // 只走路不捡东西 = 采集/打怪白跑 → 跑起来就开 BGI 自动拾取
+    if (!cfg.dryRun && (cfg.gatherEnabled || cfg.fightEnabled)) {
+      const rp = enableAutoPick();
+      if (rp.ok) info(`${TAG} 已开启 BGI 自动拾取（不然只走路不捡东西）`);
+      else warn(`${TAG} 开启自动拾取失败：${rp.reason}，请在 BGI 里手动开「自动拾取」`);
+    } else if (cfg.dryRun) {
+      info(`${TAG} 【演练】执行时会开启 BGI 自动拾取（只走路不捡 = 白跑）`);
+    }
 
     // 防卡住：弹窗/对话是头号原因，跑起来就用 BGI 内置 AutoSkip 顶着
     if (cfg.autoSkipPopup && !cfg.dryRun) {
@@ -232,7 +258,17 @@ async function snapshot(names, materials) {
       } else if (cfg.calibrateDirs > 0 && cfg.dryRun && round === 1) {
         await calibrateEnemies(cfg, state, cfg.calibrateDirs);
       }
+      try { await sleep(3000); } catch {}
       const snap = await snapshot(targetNames, data.materials);
+      if (round === 1 && cfg.unknownPolicy === '刷一轮' && snap.unknown.length) {
+        for (const n of snap.unknown) snap.counts[n] = 0;
+        warn(`${TAG} 未识别 ${snap.unknown.length} 项按「缺全额」试刷一轮（设置：刷一轮）`);
+      }
+      if (Object.keys(snap.counts).length && snap.unknown.length === Object.keys(snap.counts).length) {
+        err(`${TAG} 本轮背包统计全部失败（可能是 BGI 截图器/任务被取消），直接停止，避免误判已满足`);
+        notify('❌ 背包统计全部失败，已停止（检查 BGI 是否被取消/游戏窗口是否丢失）', { immediate: true });
+        break;
+      }
       const { shortfall, unknown, satisfied } = computeShortfall(built.targets, snap.counts);
       const shortfallCount = Object.keys(shortfall).length;
       info(`${TAG} 已满足 ${Object.keys(satisfied).length} 种，缺口 ${shortfallCount} 种`
