@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import * as Resin from '../lib/resin.js';
 import { toCounts, COUNT_MISSING, COUNT_FAILED } from '../lib/inventory.js';
 import { pickupDecision } from '../lib/env.js';
+import { buildTriggerPlan, applyTriggerPlan } from '../lib/triggers.js';
 
 const D = fileURLToPath(new URL('../data/', import.meta.url)).replace(/[\\/]+$/, '');
 const readJson = (name) => JSON.parse(fs.readFileSync(`${D}/${name}`, 'utf8'));
@@ -175,6 +176,57 @@ t('读不到文字默认不按，显式允许才按', () => {
   assert.equal(pickupDecision('', W).press, false);
   assert.equal(pickupDecision('   ', W).press, false);
   assert.equal(pickupDecision('', W, true).press, true);
+});
+
+console.log('== 触发器装配（AutoPick 不能被 AutoSkip 顶掉）');
+function FakeTimer(name, config) { this.name = name; this.config = config; }
+function mockDispatcher(withAppend) {
+  const calls = { cleared: 0, added: [], addedViaTimer: [] };
+  const d = {
+    clearAllTriggers() { calls.cleared++; },
+    addTimer(t) { calls.addedViaTimer.push(t.name); },
+  };
+  if (withAppend) d.addTrigger = (t) => calls.added.push(t.name);
+  return { d, calls };
+}
+t('AutoPick + AutoSkip 都要在名单里', () => {
+  const plan = buildTriggerPlan({ autoPick: true, autoSkip: true });
+  assert.deepEqual(plan.map((p) => p.name), ['AutoPick', 'AutoSkip']);
+  assert.deepEqual(plan[0].config, {}, 'AutoPick 需要带配置对象');
+  assert.equal(plan[1].config, undefined, 'AutoSkip 用默认配置');
+});
+t('有 addTrigger 时必须用 addTrigger 追加，且只用清空一次', () => {
+  const { d, calls } = mockDispatcher(true);
+  const r = applyTriggerPlan(d, buildTriggerPlan({ autoPick: true, autoSkip: true }), FakeTimer);
+  assert.deepEqual(r.added, ['AutoPick', 'AutoSkip']);
+  assert.equal(calls.cleared, 1);
+  assert.deepEqual(calls.added, ['AutoPick', 'AutoSkip']);
+  assert.deepEqual(calls.addedViaTimer, [], 'addTimer 会先清空，绝不能用它加第二个触发器');
+  assert.equal(r.append, true);
+});
+t('旧版 BGI 没有 addTrigger → 退回 addTimer 并标注 append=false（调用方负责告警）', () => {
+  const { d, calls } = mockDispatcher(false);
+  const r = applyTriggerPlan(d, buildTriggerPlan({ autoPick: true, autoSkip: true }), FakeTimer);
+  assert.equal(r.append, false);
+  assert.deepEqual(calls.addedViaTimer, ['AutoPick', 'AutoSkip']);
+  assert.deepEqual(r.added, ['AutoPick', 'AutoSkip']);
+});
+t('某个触发器构造失败不影响其它（记录到 failed）', () => {
+  const { d } = mockDispatcher(true);
+  const Ctor = function (name, config) {
+    if (name === 'AutoSkip') throw new Error('boom');
+    FakeTimer.call(this, name, config);
+  };
+  const r = applyTriggerPlan(d, buildTriggerPlan({ autoPick: true, autoSkip: true }), Ctor);
+  assert.deepEqual(r.added, ['AutoPick']);
+  assert.equal(r.failed.length, 1);
+  assert.equal(r.failed[0].name, 'AutoSkip');
+});
+t('只要一个触发器时也先清一次，避免上次运行叠加', () => {
+  const { d, calls } = mockDispatcher(true);
+  const r = applyTriggerPlan(d, buildTriggerPlan({ autoSkip: true }), FakeTimer);
+  assert.deepEqual(r.added, ['AutoSkip']);
+  assert.equal(calls.cleared, 1);
 });
 
 console.log(`\n结果：${pass} 通过 / ${fail} 失败`);
