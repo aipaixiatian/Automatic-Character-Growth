@@ -7,6 +7,7 @@ import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import * as Resin from '../lib/resin.js';
 import { toCounts, COUNT_MISSING, COUNT_FAILED } from '../lib/inventory.js';
+import { pickupDecision } from '../lib/env.js';
 
 const D = fileURLToPath(new URL('../data/', import.meta.url)).replace(/[\\/]+$/, '');
 const readJson = (name) => JSON.parse(fs.readFileSync(`${D}/${name}`, 'utf8'));
@@ -143,6 +144,37 @@ t('非数字也记 unknown', () => {
 t('识别结果为空字典时全部记 0', () => {
   const r = toCounts(['A', 'B'], null);
   assert.deepEqual(r.counts, { A: 0, B: 0 });
+});
+
+console.log('== 拾取决策（NPC 对话不按 F）');
+const W = ['薄荷', '霓裳花'];
+t('目标材料 → 按', () => {
+  assert.equal(pickupDecision('薄荷', W).press, true);
+  assert.equal(pickupDecision('霓裳花', W).press, true);
+  assert.equal(pickupDecision('薄荷（3）', W).press, true);
+});
+t('NPC 名字 → 不按', () => {
+  for (const npc of ['凯瑟琳', '派蒙', '玛乔丽', '瓦格纳']) {
+    assert.equal(pickupDecision(npc, W).press, false, npc);
+    assert.equal(pickupDecision(npc, W).why, 'not-wanted');
+  }
+});
+t('交互项（对话/商店/锻造…）一定不按，哪怕文字里含目标词', () => {
+  for (const word of ['对话', '交谈', '商店', '锻造', '烹饪', '合成', '调查', '开启']) {
+    assert.equal(pickupDecision(word, W).press, false, word);
+    assert.equal(pickupDecision(word, W).why, 'interact');
+  }
+  assert.equal(pickupDecision('薄荷 对话', W).press, false, '黑名单优先于白名单');
+  assert.equal(pickupDecision('锻造 霓裳花', W).press, false);
+});
+t('动作词（拾取/采集）→ 按', () => {
+  assert.equal(pickupDecision('拾取', []).press, true);
+  assert.equal(pickupDecision('采集', []).press, true);
+});
+t('读不到文字默认不按，显式允许才按', () => {
+  assert.equal(pickupDecision('', W).press, false);
+  assert.equal(pickupDecision('   ', W).press, false);
+  assert.equal(pickupDecision('', W, true).press, true);
 });
 
 console.log(`\n结果：${pass} 通过 / ${fail} 失败`);
