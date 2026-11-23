@@ -42,8 +42,9 @@ const sortKeys = (obj) => {
   for (const k of Object.keys(obj).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))) out[k] = obj[k];
   return out;
 };
-// 与现有文件风格一致：1 空格缩进
-const toJson = (obj) => JSON.stringify(obj, null, 1) + '\n';
+// 输出用紧凑格式：这些是生成产物，压缩后 PR / 仓库里只有几行，审阅成本低得多；
+// 想看内容用 tools/build-maps.mjs --check，或 `jq .` 展开看
+const toJson = (obj) => JSON.stringify(obj) + '\n';
 
 /** 解析「敌人：材料，材料」掉落表 */
 function parseDropTable() {
